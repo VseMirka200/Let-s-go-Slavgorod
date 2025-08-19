@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Поехали! Славгород</string>
+    <string name="app_name_actual">Расписание Славгород</string>
+
+    <string name="search_icon_description">Поиск</string>
+    <string name="about_icon_description">О программе</string>
+    <string name="error_loading_routes">Ошибка загрузки маршрутов</string>
+    <string name="routes_not_found">Маршруты не найдены</string>
+    <string name="routes_unavailable">Маршруты недоступны</string>
+    <string name="try_changing_search_query">Попробуйте изменить поисковый запрос</string>
+</resources>
