@@ -4,17 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels // Для by viewModels()
+import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext // Для ThemeViewModel в BusScheduleApp, если SettingsScreen его там получает
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -29,26 +29,22 @@ import com.example.slavgorodbus.ui.screens.HomeScreen
 import com.example.slavgorodbus.ui.screens.ScheduleScreen
 import com.example.slavgorodbus.ui.screens.SearchScreen
 import com.example.slavgorodbus.ui.screens.SettingsScreen
-import com.example.slavgorodbus.ui.theme.SlavgorodBusTheme // Ваша тема
+import com.example.slavgorodbus.ui.theme.SlavgorodBusTheme
 import com.example.slavgorodbus.ui.viewmodel.AppTheme
 import com.example.slavgorodbus.ui.viewmodel.BusViewModel
 import com.example.slavgorodbus.ui.viewmodel.ThemeViewModel
 import com.example.slavgorodbus.ui.viewmodel.ThemeViewModelFactory
-import com.example.slavgorodbus.ui.viewmodel.getThemeViewModel // Если используется в SettingsScreen напрямую
 
 class MainActivity : ComponentActivity() {
 
-    // Инициализируем ThemeViewModel на уровне Activity
     private val themeViewModel: ThemeViewModel by viewModels {
         ThemeViewModelFactory(applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // Убедитесь, что это не конфликтует с вашим подходом к теме/полноэкранному режиму
-
+        enableEdgeToEdge()
         setContent {
-            // Собираем текущую тему из ThemeViewModel
             val currentAppTheme by themeViewModel.currentTheme.collectAsState()
             val useDarkTheme = when (currentAppTheme) {
                 AppTheme.SYSTEM -> isSystemInDarkTheme()
@@ -56,21 +52,18 @@ class MainActivity : ComponentActivity() {
                 AppTheme.DARK -> true
             }
 
-            // Применяем выбранную тему ко всему приложению
             SlavgorodBusTheme(darkTheme = useDarkTheme) {
-                // Передаем themeViewModel в BusScheduleApp, если он нужен там для SettingsScreen
                 BusScheduleApp(themeViewModel = themeViewModel)
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BusScheduleApp(themeViewModel: ThemeViewModel) { // Принимаем ThemeViewModel
+fun BusScheduleApp(themeViewModel: ThemeViewModel) {
     val navController = rememberNavController()
-    // BusViewModel остается локальным для BusScheduleApp, если он не нужен выше
-    val busViewModel = remember { BusViewModel() }
-
+    val busViewModel: BusViewModel = viewModel()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -82,18 +75,17 @@ fun BusScheduleApp(themeViewModel: ThemeViewModel) { // Принимаем Theme
             navController = navController,
             modifier = Modifier.padding(innerPadding),
             busViewModel = busViewModel,
-            themeViewModel = themeViewModel // Передаем themeViewModel в NavHost
+            themeViewModel = themeViewModel
         )
     }
 }
 
-// Вынесем NavHost в отдельную Composable функцию для лучшей читаемости
 @Composable
 fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     busViewModel: BusViewModel,
-    themeViewModel: ThemeViewModel // Принимаем ThemeViewModel
+    themeViewModel: ThemeViewModel
 ) {
     NavHost(
         navController = navController,
@@ -142,8 +134,9 @@ fun AppNavHost(
 
         composable(Screen.Settings.route) {
             SettingsScreen(
-                themeViewModel = themeViewModel, // Если передаете явно
-                onNavigateBack = { navController.popBackStack() } // <--- ПЕРЕДАЕМ КОЛЛБЭК
+                themeViewModel = themeViewModel,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToAbout = { navController.navigate(Screen.About.route) }
             )
         }
 

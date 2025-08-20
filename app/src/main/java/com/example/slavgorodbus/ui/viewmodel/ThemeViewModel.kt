@@ -1,47 +1,48 @@
-package com.example.slavgorodbus.ui.viewmodel // Убедитесь, что это ваш правильный пакет
+package com.example.slavgorodbus.ui.viewmodel
 
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import androidx.datastore.core.DataStore // <--- ВАЖНЫЙ ИМПОРТ
-import androidx.datastore.preferences.core.Preferences // <--- ВАЖНЫЙ ИМПОРТ
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore // <--- САМЫЙ ВАЖНЫЙ ИМПОРТ ДЛЯ ЭТОЙ ОШИБКИ
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-// DataStore для сохранения настроек темы - НА ВЕРХНЕМ УРОВНЕ ФАЙЛА
-val Context.themeDataStore: DataStore<Preferences> by preferencesDataStore(name = "theme_preferences")
+private val Context.themeDataStore: DataStore<Preferences> by preferencesDataStore(name = "theme_preferences")
 
 enum class AppTheme {
     SYSTEM, LIGHT, DARK
 }
 
-class ThemeViewModel(private val context: Context) : ViewModel() {
+class ThemeViewModel(private val dataStore: DataStore<Preferences>) : ViewModel() {
 
-    private val themePreferencesKey = stringPreferencesKey("app_theme")
+    private object PreferencesKeys {
+        val APP_THEME = stringPreferencesKey("app_theme")
+    }
 
-    // Используем context для доступа к свойству расширения
-    val currentTheme = context.themeDataStore.data
+    val currentTheme = dataStore.data
         .map { preferences ->
-            AppTheme.valueOf(preferences[themePreferencesKey] ?: AppTheme.SYSTEM.name)
+            AppTheme.valueOf(preferences[PreferencesKeys.APP_THEME] ?: AppTheme.SYSTEM.name)
         }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.WhileSubscribed(5000L),
             initialValue = AppTheme.SYSTEM
         )
 
     fun setTheme(theme: AppTheme) {
         viewModelScope.launch {
-            context.themeDataStore.edit { preferences ->
-                preferences[themePreferencesKey] = theme.name
+            dataStore.edit { preferences ->
+                preferences[PreferencesKeys.APP_THEME] = theme.name
             }
         }
     }
@@ -50,17 +51,17 @@ class ThemeViewModel(private val context: Context) : ViewModel() {
 @Composable
 fun getThemeViewModel(): ThemeViewModel {
     val context = LocalContext.current.applicationContext
-    return androidx.lifecycle.viewmodel.compose.viewModel(
+    return viewModel(
         factory = ThemeViewModelFactory(context)
     )
 }
 
 class ThemeViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ThemeViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return ThemeViewModel(context) as T
+            return ThemeViewModel(context.applicationContext.themeDataStore) as T
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
+        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }

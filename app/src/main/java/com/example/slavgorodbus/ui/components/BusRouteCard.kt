@@ -6,16 +6,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CompareArrows
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle // <-- Импортируем TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.slavgorodbus.data.model.BusRoute
@@ -26,7 +25,6 @@ import androidx.core.graphics.toColorInt
 fun BusRouteCard(
     route: BusRoute,
     onRouteClick: (BusRoute) -> Unit,
-    onFavoriteClick: (BusRoute) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -34,129 +32,139 @@ fun BusRouteCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable { onRouteClick(route) },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
         ) {
-            // Первый Row: номер маршрута, название, описание и кнопка "избранное".
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Левая часть: кружок с номером маршрута, название и описание.
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color(route.color.toColorInt())),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = route.routeNumber,
-                            color = Color.White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Column(modifier = Modifier.padding(end = 8.dp)) {
-                        Text(
-                            text = route.name,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = route.description,
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            lineHeight = 18.sp
-                        )
-                    }
-                }
-                IconButton(onClick = { onFavoriteClick(route) }) {
-                    Icon(
-                        imageVector = if (route.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = if (route.isFavorite) "Удалить из избранного" else "Добавить в избранное",
-                        tint = if (route.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+            RouteHeader(
+                routeNumber = route.routeNumber,
+                colorString = route.color,
+                routeName = route.name,
+                routeDescription = route.description
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            RouteDetails(
+                pricePrimary = route.pricePrimary,
+                directionDetails = route.directionDetails
+            )
+        }
+    }
+}
+
+@Composable
+private fun RouteHeader(
+    routeNumber: String,
+    colorString: String,
+    routeName: String,
+    routeDescription: String?
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(52.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(colorString.toColorInt()).copy(alpha = 0.9f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = routeNumber,
+                color = Color.White,
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = routeName,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (!routeDescription.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = routeDescription,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 16.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RouteDetails(
+    pricePrimary: String?,
+    directionDetails: String?
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (!pricePrimary.isNullOrBlank()) {
+            val originalPriceString = pricePrimary
+            val extraSpaces = "\u00A0\u00A0\u00A0\u00A0"
+            val regex = " (?=\\d+\\s*руб\\.\\s*\\(межгород\\))".toRegex()
+
+            val formattedPriceString = if (originalPriceString.contains("(по городу)") && originalPriceString.contains("(межгород)")) {
+                originalPriceString.replaceFirst(regex, extraSpaces)
+            } else {
+                originalPriceString
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = formattedPriceString,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(1f),
+                textAlign = if (directionDetails.isNullOrBlank()) TextAlign.Center else TextAlign.Start
+            )
+        } else {
+            if (!directionDetails.isNullOrBlank()) {
+                Spacer(Modifier.weight(1f))
+            }
+        }
 
-            // Второй Row: ЦЕНЫ (слева) и НАПРАВЛЕНИЕ (справа)
+        if (!directionDetails.isNullOrBlank()) {
+            if (!pricePrimary.isNullOrBlank()) {
+                Spacer(modifier = Modifier.width(4.dp))
+            }
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                // Левая часть: Цены
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    // ОПРЕДЕЛЯЕМ ОБЩИЙ СТИЛЬ ДЛЯ ЦЕН
-                    val commonPriceStyle = TextStyle(
-                        fontSize = 12.sp, // Или любой другой размер по вашему выбору
-                        fontWeight = FontWeight.Medium, // Или другой FontWeight
-                        color = MaterialTheme.colorScheme.primary // Или другой цвет
-                    )
-
-                    var pricesDisplayed = false
-                    route.pricePrimary?.let { priceText ->
-                        if (priceText.isNotBlank()) {
-                            Text(
-                                text = priceText,
-                                style = commonPriceStyle // <--- ПРИМЕНЯЕМ ОБЩИЙ СТИЛЬ
-                            )
-                            pricesDisplayed = true
-                        }
-                    }
-                    route.priceSecondary?.let { priceText ->
-                        if (priceText.isNotBlank()) {
-                            Text(
-                                text = priceText,
-                                style = commonPriceStyle // <--- ПРИМЕНЯЕМ ОБЩИЙ СТИЛЬ
-                            )
-                            pricesDisplayed = true
-                        }
-                    }
-                    if (!pricesDisplayed) {
-                        // Spacer(Modifier.height(1.dp)) // Если нужно занять место
-                    }
-                }
-
-                // Правая часть: Направление
-                if (route.directionDetails?.isNotBlank() == true) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.CompareArrows,
-                            contentDescription = "Направление",
-                            modifier = Modifier.size(14.dp),
-                            tint = MaterialTheme.colorScheme.secondary
-                        )
-                        Text(
-                            text = route.directionDetails,
-                            fontSize = 11.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                } else {
-                    Spacer(Modifier.width(0.dp))
-                }
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.CompareArrows,
+                    contentDescription = "Направление",
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.secondary
+                )
+                Text(
+                    text = directionDetails,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                )
             }
         }
     }
