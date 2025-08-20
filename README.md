@@ -18,5 +18,3 @@
 - Дорабоать уведомления
 
 <img width="135" height="267.25" alt="image" src="https://github.com/user-attachments/assets/670ed3bd-dc96-4fb8-a7fd-0611ec1ef79d" />  <img width="135" height="267.25" alt="image" src="https://github.com/user-attachments/assets/bf1a48b2-2700-4cc3-9f03-f5fca96cfdd8" />  <img width="135" height="267.25" alt="image" src="https://github.com/user-attachments/assets/db18d5bb-0c00-4d87-be60-635616395a96" />
-
-
