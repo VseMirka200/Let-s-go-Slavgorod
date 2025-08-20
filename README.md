@@ -1,6 +1,5 @@
 # Поехали! Славгород
-[![Android](https://img.shields.io/badge/Android-5.0%2B-brightgreen)](https://www.android.com)
-Обход глубокого анализа трафика (DPI) на Android-устройствах.
+[![Скачать APK](https://img.shields.io/badge/Скачать-APK-success?style=for-the-badge&logo=android)](https://github.com/VseMirka200/Let-s-go-Slavgorod/releases/tag/Let-s-go-Slavgorod0.1.1)
 
 ## Описание
 
