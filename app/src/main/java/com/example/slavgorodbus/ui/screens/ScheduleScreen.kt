@@ -4,6 +4,8 @@ package com.example.slavgorodbus.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons // <--- ДОБАВЛЕНО
+import androidx.compose.material.icons.automirrored.filled.ArrowBack // <--- ДОБАВЛЕНО
 import androidx.compose.material3.*
 import androidx.compose.runtime.* // Для Composable, remember, State и т.д.
 import androidx.compose.ui.Alignment // Для выравнивания элементов
@@ -24,61 +26,50 @@ fun ScheduleScreen(
     onBackClick: () -> Unit, // Лямбда-функция для обработки нажатия кнопки "Назад"
     viewModel: BusViewModel? = null // Экземпляр ViewModel (опциональный, для работы с избранным временем)
 ) {
-    // Получение списка расписаний.
-    // `remember` используется для того, чтобы `generateSampleSchedules` вызывалась только один раз
-    // при первой композиции или при изменении `route`.
-    // В реальном приложении здесь бы происходил запрос к ViewModel для получения расписаний.
-    val schedules = remember(route) { // Ключ `route` гарантирует пересчет, если маршрут изменился
+    val schedules = remember(route) {
         if (route != null) {
-            // Если маршрут предоставлен, генерируем для него пример расписания.
             generateSampleSchedules(route.id)
         } else {
-            // Если маршрут не предоставлен, возвращаем пустой список.
             emptyList()
         }
     }
 
-    // Scaffold предоставляет стандартную структуру экрана Material Design
     Scaffold(
         topBar = {
-            // Верхняя панель приложения (AppBar)
             TopAppBar(
                 title = {
-                    // Заголовок AppBar, отображает номер маршрута, если он есть.
                     Text(
-                        text = "Расписание маршрута ${route?.routeNumber ?: ""}", // Используем элвис-оператор для случая, когда route равен null
+                        text = "Расписание маршрута №${route?.routeNumber ?: ""}",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {
-                    // Иконка для навигации (обычно кнопка "Назад")
-                    IconButton(onClick = onBackClick) { // При нажатии вызывается переданная лямбда onBackClick
-                        // Здесь должна быть иконка, например, Icons.AutoMirrored.Filled.ArrowBack
-                        // Если IconButton пуст, он будет отображаться как пустая кликабельная область.
-                        // Пример: Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack, // <--- ИЗМЕНЕНО
+                            contentDescription = "Назад"                       // <--- ИЗМЕНЕНО
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer // <--- ДОБАВЛЕНО для цвета иконки навигации
                 )
             )
         }
-    ) { paddingValues -> // paddingValues содержит отступы от системных элементов (например, TopAppBar)
-
-        // Условное отображение контента в зависимости от того, передан ли маршрут (`route`)
+    ) { paddingValues ->
         if (route == null) {
-            // Если маршрут не выбран (route == null), показываем сообщение с просьбой выбрать маршрут.
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues), // Применяем отступы
-                contentAlignment = Alignment.Center // Центрируем содержимое
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp) // Расстояние между текстами
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
                         text = "Выберите маршрут",
@@ -94,25 +85,23 @@ fun ScheduleScreen(
                 }
             }
         } else {
-            // Если маршрут выбран, отображаем информацию о нем и список расписаний.
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues), // Применяем отступы
-                contentPadding = PaddingValues(vertical = 8.dp) // Внутренние отступы для списка
+                    .padding(paddingValues),
+                contentPadding = PaddingValues(vertical = 8.dp)
             ) {
-                // Первый элемент списка - карточка с информацией о маршруте.
                 item {
                     Card(
                         modifier = Modifier
-                            .fillMaxWidth() // Карточка занимает всю ширину
-                            .padding(horizontal = 16.dp, vertical = 8.dp), // Внешние отступы для карточки
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer // Цвет фона карточки
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
                         )
                     ) {
                         Column(
-                            modifier = Modifier.padding(16.dp) // Внутренние отступы в карточке
+                            modifier = Modifier.padding(16.dp)
                         ) {
                             Text(
                                 text = "Маршрут №${route.routeNumber}",
@@ -120,12 +109,9 @@ fun ScheduleScreen(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
                             )
-                            Spacer(modifier = Modifier.height(8.dp)) // Небольшой отступ
-
+                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                // В реальном приложении здесь должно быть название маршрута из route.name
-                                // Сейчас здесь статичный текст, который может не соответствовать `route.routeNumber`
-                                text = route.name, // Используем route.name для корректного отображения
+                                text = route.name,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -134,21 +120,17 @@ fun ScheduleScreen(
                     }
                 }
 
-                // Отображение списка элементов расписания (время отправления и прибытия)
-                items(schedules) { schedule -> // Итерация по списку `schedules`
-                    // Проверяем, добавлено ли это время в избранное через ViewModel
+                items(schedules) { schedule ->
                     val isFavorite = viewModel?.isFavoriteTime(schedule.id) ?: false
-
-                    // Для каждого элемента расписания отображаем ScheduleCard
                     ScheduleCard(
-                        schedule = schedule, // Передаем данные элемента расписания
-                        isFavorite = isFavorite, // Передаем статус "избранное"
-                        onFavoriteClick = { // Лямбда-функция для обработки клика на иконку "избранное"
-                            viewModel?.let { vm -> // Выполняем, только если viewModel не null
+                        schedule = schedule,
+                        isFavorite = isFavorite,
+                        onFavoriteClick = {
+                            viewModel?.let { vm ->
                                 if (isFavorite) {
-                                    vm.removeFavoriteTime(schedule.id) // Удаляем из избранного
+                                    vm.removeFavoriteTime(schedule.id)
                                 } else {
-                                    vm.addFavoriteTime(schedule) // Добавляем в избранное
+                                    vm.addFavoriteTime(schedule)
                                 }
                             }
                         }
@@ -159,8 +141,7 @@ fun ScheduleScreen(
     }
 }
 
-// Приватная функция для генерации примерного списка расписаний.
-// В реальном приложении эти данные должны приходит
+// ... остальная часть файла (generateSampleSchedules) ...
 private fun generateSampleSchedules(routeId: String): List<BusSchedule> {
     // Возвращает список расписаний в зависимости от routeId.
     // Пока реализовано только для "102".
@@ -175,7 +156,7 @@ private fun generateSampleSchedules(routeId: String): List<BusSchedule> {
             BusSchedule("102_7", "102", "Славгород (Рынок)", "08:25", "09:00", 1),
             BusSchedule("102_8", "102", "Славгород (Рынок)", "08:40", "09:20", 1),
             BusSchedule("102_9", "102", "Славгород (Рынок)", "09:00", "09:40", 1),
-            BusSchedule("102_10", "102", "Славгород (Рынок)", "09:20", "10:00", 1),
+            BusSchedule("102_10", "102", "Сलावгород (Рынок)", "09:20", "10:00", 1),
             BusSchedule("102_11", "102", "Славгород (Рынок)", "09:35", "10:15", 1),
             BusSchedule("102_12", "102", "Славгород (Рынок)", "10:00", "10:35", 1),
             BusSchedule("102_13", "102", "Славгород (Рынок)", "10:25", "11:10", 1),

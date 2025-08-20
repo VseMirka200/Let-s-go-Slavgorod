@@ -36,11 +36,12 @@ class BusViewModel : ViewModel() {
             id = "102",
             routeNumber = "102",
             name = "Славгород - Яровое",
-            description = "Маршрут между Славгород и Яровое",
-            startStop = "Славгород (Рынок)",
-            endStop = "Яровое (МСЧ-128)",
-            // isFavorite = false // По умолчанию маршрут не в избранном
-        )
+            description = "Маршрут между Славгородом и Яровым",
+            isActive = true,
+            isFavorite = false,
+            color = "#1976D2",
+            pricePrimary = "35 руб. (по городу)     55 руб. (до Ярового)",     // <--- НОВОЕ ПОЛЕ
+        ),
         // Сюда можно добавить другие маршруты
     )
 
