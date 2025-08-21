@@ -1,5 +1,5 @@
 # Поехали! Славгород
-[![Скачать APK](https://img.shields.io/badge/Скачать-APK-success?style=for-the-badge&logo=android)](https://github.com/VseMirka200/Let-s-go-Slavgorod/releases/tag/Let-s-go-Slavgorod0.1.1)
+[![Скачать APK](https://img.shields.io/badge/Скачать-APK-success?style=for-the-badge&logo=android)](https://github.com/VseMirka200/Let-s-go-Slavgorod/releases/tag/Let-s-go-Slavgorod0.1.0)
 
 ## Описание
 Твой надежный помощник в городе. Приложение «Поехали! Славгород» предоставляет актуальное и удобное расписание городских автобусов, чтобы ты всегда мог построить оптимальный маршрут и сэкономить своё время.
