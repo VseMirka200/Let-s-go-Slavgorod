@@ -22,7 +22,7 @@ fun ScheduleScreen(
     route: BusRoute?,
     onBackClick: () -> Unit,
     viewModel: BusViewModel? = null,
-    modifier: Modifier.Companion
+    modifier: Modifier
 ) {
     val schedules = remember(route) {
         if (route != null) {

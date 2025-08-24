@@ -15,21 +15,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.slavgorodbus.R // <--- УБЕДИСЬ, ЧТО ЭТОТ ИМПОРТ ПРАВИЛЬНЫЙ
+import com.example.slavgorodbus.R
 import com.example.slavgorodbus.data.model.BusSchedule
 import com.example.slavgorodbus.data.model.FavoriteTime
 import com.example.slavgorodbus.ui.components.ScheduleCard
 import com.example.slavgorodbus.ui.viewmodel.BusViewModel
 
-// УДАЛЕНЫ НЕКОРРЕКТНЫЕ СВОЙСТВА-РАСШИРЕНИЯ
-// private val Any.favorite_times_screen_title: Int
-// private val ERROR.string: Any
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoriteTimesScreen(
     viewModel: BusViewModel,
-    modifier: Modifier.Companion
+    modifier: Modifier
 ) {
     val favoriteTimes by viewModel.favoriteTimes.collectAsState()
 
@@ -38,7 +34,7 @@ fun FavoriteTimesScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(id = R.string.favorite_times_screen_title), // Убедись, что R.string.favorite_times_screen_title существует
+                        text = stringResource(id = R.string.favorite_times_screen_title),
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
                 },
@@ -73,17 +69,17 @@ private fun EmptyFavoritesState(modifier: Modifier = Modifier) {
         ) {
             Icon(
                 imageVector = Icons.Default.Favorite,
-                contentDescription = stringResource(id = R.string.no_favorite_times_icon_desc), // Убедись, что R.string.no_favorite_times_icon_desc существует
+                contentDescription = stringResource(id = R.string.no_favorite_times_icon_desc),
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = stringResource(id = R.string.no_favorite_times_title), // Убедись, что R.string.no_favorite_times_title существует
+                text = stringResource(id = R.string.no_favorite_times_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = stringResource(id = R.string.favorites_not_working_message), // Убедись, что R.string.favorites_not_working_message существует
+                text = stringResource(id = R.string.favorites_not_working_message),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -113,7 +109,7 @@ private fun FavoritesList(
                 stopName = favoriteTime.stopName,
                 departureTime = favoriteTime.departureTime,
                 arrivalTime = favoriteTime.arrivalTime,
-                dayOfWeek = 1 // Убедитесь, что это значение корректно для вашей логики
+                dayOfWeek = 1
             )
 
             ScheduleCard(

@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavOptionsBuilder // <-- Добавь этот импорт
 import androidx.navigation.compose.currentBackStackEntryAsState
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
@@ -68,24 +67,16 @@ fun BottomNavigation(navController: NavController) {
                         val isCurrentlyOnAboutAndSettingsClicked = navigationItem.route == Screen.Settings.route && currentRoute == Screen.About.route
 
                         if (isCurrentlyOnAboutAndSettingsClicked) {
-                            // Если мы на "О программе" и кликаем на уже подсвеченные "Настройки",
-                            // ничего не делаем, чтобы остаться на "О программе".
-                            // Пользователь должен использовать кнопку "назад" для возврата на Settings.
                         } else if (currentRoute != navigationItem.route) {
                             if (navigationItem.route == Screen.Settings.route) {
-                                // Особая логика для "Настроек", чтобы всегда открывать SettingsScreen
                                 navController.navigate(Screen.Settings.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
-                                        // Сохраняем состояние для других вкладок
                                         saveState = true
                                     }
                                     launchSingleTop = true
-                                    // Для Settings не восстанавливаем состояние, чтобы он "забыл" об AboutScreen
-                                    // Это ключевой момент для сброса.
                                     restoreState = false
                                 }
                             } else {
-                                // Стандартная навигация для других элементов
                                 navController.navigate(navigationItem.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true

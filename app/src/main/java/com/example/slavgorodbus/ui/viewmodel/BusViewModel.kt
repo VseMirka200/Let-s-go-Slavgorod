@@ -1,17 +1,21 @@
 package com.example.slavgorodbus.ui.viewmodel
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.example.slavgorodbus.data.model.BusRoute
 import com.example.slavgorodbus.data.model.BusSchedule
 import com.example.slavgorodbus.data.model.FavoriteTime
-import com.example.slavgorodbus.notification.BusNotificationService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class BusViewModel : ViewModel() {
+data class BusUiState(
+    val routes: List<BusRoute> = emptyList(),
+    val isLoading: Boolean = false,
+    val error: String? = null
+)
+
+class BusViewModel() : ViewModel() {
 
     private val _uiState = MutableStateFlow(BusUiState())
     val uiState: StateFlow<BusUiState> = _uiState.asStateFlow()
@@ -29,13 +33,13 @@ class BusViewModel : ViewModel() {
             BusRoute(
                 id = "102",
                 routeNumber = "102",
-                name = "Славгород - Яровое",
-                description = "Маршрут между Славгородом и Яровым",
-                isActive = true,
-                color = "#1976D2",
-                pricePrimary = "35 руб. (по городу) 55 руб. (межгород)",
+                name = "Автобус 102",
+                description = "Маршрут между Славгородом и Яровым.",
+                travelTime = "~40 минут.",
+                pricePrimary = "35 руб. (по городу), 55 руб. (межгород)",
+                paymentMethods = "Наличными, Банковской картой."
             )
-            // Другие маршруты
+            // Тут для других машрутов
         )
         allRoutes.value = sampleRoutes
         loadInitialRoutes()
@@ -64,8 +68,6 @@ class BusViewModel : ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(
                 routes = routesToDisplay,
-                isLoading = false,
-                error = null
             )
         }
     }
@@ -75,7 +77,7 @@ class BusViewModel : ViewModel() {
         return allRoutes.value.find { it.id == routeId }
     }
 
-    fun addFavoriteTime(schedule: BusSchedule, context: Context? = null) {
+    fun addFavoriteTime(schedule: BusSchedule) {
         val favoriteTime = FavoriteTime(
             id = schedule.id,
             routeId = schedule.routeId,
@@ -83,26 +85,12 @@ class BusViewModel : ViewModel() {
             arrivalTime = schedule.arrivalTime,
             stopName = schedule.stopName
         )
-
-        _favoriteTimes.value
-        var itemWasAdded = false
-
         _favoriteTimes.update { currentFavorites ->
             if (currentFavorites.none { it.id == favoriteTime.id }) {
-                itemWasAdded = true
                 currentFavorites + favoriteTime
             } else {
                 currentFavorites
             }
-        }
-
-        if (itemWasAdded && context != null) {
-            val notificationService = BusNotificationService(context)
-            notificationService.showBusDepartureNotification(
-                favoriteTime.routeId,
-                favoriteTime.departureTime,
-                favoriteTime.stopName
-            )
         }
     }
 
@@ -116,9 +104,3 @@ class BusViewModel : ViewModel() {
         return favoriteTimes.value.any { it.id == scheduleId }
     }
 }
-
-data class BusUiState(
-    val routes: List<BusRoute> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null
-)

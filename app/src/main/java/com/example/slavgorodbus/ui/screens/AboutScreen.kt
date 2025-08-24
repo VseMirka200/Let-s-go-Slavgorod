@@ -6,8 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-// import androidx.compose.material.icons.Icons // Больше не нужен для Icons.AutoMirrored.Filled.ArrowBack
-// import androidx.compose.material.icons.automirrored.filled.ArrowBack // Больше не нужен
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -22,9 +20,7 @@ import androidx.core.net.toUri
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(
-    // onNavigateBack: () -> Unit, // <--- 1. УДАЛЯЕМ ПАРАМЕТР onNavigateBack
-    modifier: Modifier = Modifier,
-    onNavigateBack: () -> Boolean
+    modifier: Modifier = Modifier
 ) {
     val developerName = stringResource(id = R.string.developer_name_value)
     val developerVkUrl = stringResource(id = R.string.developer_vk_url_value)
@@ -40,22 +36,12 @@ fun AboutScreen(
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
             },
-            // 2. УДАЛЯЕМ БЛОК navigationIcon
-            // navigationIcon = {
-            //     IconButton(onClick = onNavigateBack) { // onNavigateBack здесь вызовет ошибку, так как параметр удален
-            //         Icon(
-            //             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            //             contentDescription = stringResource(id = R.string.content_description_back)
-            //         )
-            //     }
-            // },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer // Этот параметр можно тоже убрать, если иконки нет
+                navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
         )
-        // Контент экрана
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -104,7 +90,6 @@ private fun ClickableLinkText(
     text: String,
     url: String
 ) {
-    // ... (код ClickableLinkText остается без изменений) ...
     val localContext = LocalContext.current
     Text(
         text = text,

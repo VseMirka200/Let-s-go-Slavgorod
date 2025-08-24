@@ -25,22 +25,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight // <--- ДОБАВЬ ЭТОТ ИМПОРТ, ЕСЛИ ЕГО НЕТ
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import com.example.slavgorodbus.R
 import com.example.slavgorodbus.data.model.BusRoute
-import com.example.slavgorodbus.ui.components.BusRouteCard
 import com.example.slavgorodbus.ui.components.SearchBar
 import com.example.slavgorodbus.ui.viewmodel.BusViewModel
+import com.example.slavgorodbus.ui.components.BusRouteCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onRouteClick: (BusRoute) -> Unit,
+    navController: NavController,
     viewModel: BusViewModel,
-    navController: NavHostController, // NavController сейчас здесь не используется для заголовка
-    modifier: Modifier.Companion
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -51,11 +50,8 @@ fun HomeScreen(
                 title = {
                     Text(
                         text = stringResource(id = R.string.app_name_actual),
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold) // <--- ИЗМЕНЕНИЕ ЗДЕСЬ
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
-                },
-                actions = {
-                    // Твои actions, если они есть
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -78,11 +74,11 @@ fun HomeScreen(
 
             when {
                 uiState.isLoading -> LoadingState()
-                uiState.error != null -> ErrorState(errorMessage = uiState.error!!) // Используем !! безопасно, так как есть проверка uiState.error != null
+                uiState.error != null -> ErrorState(errorMessage = uiState.error!!)
                 uiState.routes.isEmpty() -> EmptyState(searchQuery = searchQuery)
                 else -> RoutesListState(
                     routes = uiState.routes,
-                    onRouteClick = onRouteClick
+                    navController = navController,
                 )
             }
         }
@@ -102,7 +98,7 @@ private fun LoadingState() {
 @Composable
 private fun ErrorState(errorMessage: String) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -111,7 +107,7 @@ private fun ErrorState(errorMessage: String) {
         ) {
             Icon(
                 imageVector = Icons.Default.DirectionsBus,
-                contentDescription = null, // Рассмотрите добавление описания для доступности, например, stringResource(R.string.error_icon_desc)
+                contentDescription = stringResource(R.string.error_icon_description),
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.error
             )
@@ -132,7 +128,7 @@ private fun ErrorState(errorMessage: String) {
 @Composable
 private fun EmptyState(searchQuery: String) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -141,7 +137,7 @@ private fun EmptyState(searchQuery: String) {
         ) {
             Icon(
                 imageVector = Icons.Default.DirectionsBus,
-                contentDescription = null, // Рассмотрите stringResource(R.string.empty_state_icon_desc)
+                contentDescription = stringResource(R.string.empty_state_icon_description),
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -165,20 +161,24 @@ private fun EmptyState(searchQuery: String) {
 @Composable
 private fun RoutesListState(
     routes: List<BusRoute>,
-    onRouteClick: (BusRoute) -> Unit
+    navController: NavController,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 8.dp) // Рассмотрите возможность сделать отступы единообразными с padding(16.dp) или как вам нужно
+        contentPadding = PaddingValues(vertical = 8.dp)
     ) {
         items(
             items = routes,
-            key = { route -> route.id } // Хорошая практика для производительности LazyColumn
+            key = { route -> route.id }
         ) { route ->
             BusRouteCard(
                 route = route,
-                onRouteClick = onRouteClick
-                // modifier = Modifier.padding(horizontal = 16.dp) // Если хотите отступы для карточек, согласующиеся с padding(16.dp) Column
+                onRouteClick = { clickedRoute ->
+                    navController.navigate("schedule/${clickedRoute.id}")
+                },
+                onInfoClick = { clickedRoute ->
+                    navController.navigate("routeDetails/${clickedRoute.id}")
+                }
             )
         }
     }

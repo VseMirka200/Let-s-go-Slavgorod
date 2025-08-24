@@ -26,6 +26,7 @@ import com.example.slavgorodbus.ui.navigation.Screen
 import com.example.slavgorodbus.ui.screens.AboutScreen
 import com.example.slavgorodbus.ui.screens.FavoriteTimesScreen
 import com.example.slavgorodbus.ui.screens.HomeScreen
+import com.example.slavgorodbus.ui.screens.RouteDetailsScreen
 import com.example.slavgorodbus.ui.screens.ScheduleScreen
 import com.example.slavgorodbus.ui.screens.SettingsScreen
 import com.example.slavgorodbus.ui.theme.SlavgorodBusTheme
@@ -93,11 +94,8 @@ fun AppNavHost(
     ) {
         composable(Screen.Home.route) {
             HomeScreen(
-                onRouteClick = { route ->
-                    navController.navigate("schedule/${route.id}")
-                },
-                viewModel = busViewModel,
                 navController = navController,
+                viewModel = busViewModel,
                 modifier = Modifier
             )
         }
@@ -125,6 +123,18 @@ fun AppNavHost(
             )
         }
 
+        composable(
+            route = "routeDetails/{routeId}",
+            arguments = listOf(navArgument("routeId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val routeId = backStackEntry.arguments?.getString("routeId")
+            val route = busViewModel.getRouteById(routeId)
+            RouteDetailsScreen(
+                route = route,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
         composable(Screen.Settings.route) {
             SettingsScreen(
                 themeViewModel = themeViewModel,
@@ -135,7 +145,6 @@ fun AppNavHost(
 
         composable(Screen.About.route) {
             AboutScreen(
-                onNavigateBack = { navController.popBackStack() },
                 modifier = Modifier
             )
         }

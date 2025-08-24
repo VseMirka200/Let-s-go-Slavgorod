@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Поехали! Славгород</string>
+    <string name="error_icon_description">Иконка ошибки загрузки</string>
+    <string name="empty_state_icon_description">Иконка пустого состояния или отсутствия результатов</string>
 
     // Главное меню
     <string name="app_name_actual">Маршруты</string>
@@ -40,4 +42,15 @@
     <string name="theme_system">Как в системе</string>
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Темная</string>
+
+    // Подробнее о маршрутке
+    <string name="route_details_title">Детали маршрута</string>
+    <string name="back_button_description">Назад</string>
+    <string name="route_info_not_found">Информация о маршруте не найдена.</string>
+    <string name="detail_label_name">Название автобуса:</string>
+    <string name="detail_label_description">Описание:</string>
+    <string name="detail_label_travel_time">Время в пути:</string>
+    <string name="detail_label_detailedPrice">Цена:</string>
+    <string name="detail_label_price_paymentMethods">Способы оплаты:</string>
+
 </resources>

@@ -49,19 +49,15 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-	implementation("androidx.datastore:datastore-preferences:1.0.0") // Используйте последнюю версию
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0") // Убедитесь, что эта зависимость есть
+	implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
-    // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
     
-    // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     
-    // Icons Extended
     implementation("androidx.compose.material:material-icons-extended:1.6.3")
     
-    // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.5.0")
     
 
