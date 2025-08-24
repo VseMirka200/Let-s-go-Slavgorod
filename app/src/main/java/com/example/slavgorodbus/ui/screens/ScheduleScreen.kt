@@ -21,7 +21,8 @@ import com.example.slavgorodbus.ui.viewmodel.BusViewModel
 fun ScheduleScreen(
     route: BusRoute?,
     onBackClick: () -> Unit,
-    viewModel: BusViewModel? = null
+    viewModel: BusViewModel? = null,
+    modifier: Modifier.Companion
 ) {
     val schedules = remember(route) {
         if (route != null) {
@@ -57,10 +58,10 @@ fun ScheduleScreen(
         }
     ) { paddingValues ->
         if (route == null) {
-            NoRouteSelectedMessage(modifier = Modifier.padding(paddingValues))
+            NoRouteSelectedMessage(modifier = modifier.padding(paddingValues))
         } else {
             ScheduleDetails(
-                modifier = Modifier.padding(paddingValues),
+                modifier = modifier.padding(paddingValues),
                 route = route,
                 schedules = schedules,
                 viewModel = viewModel

@@ -11,17 +11,25 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.slavgorodbus.R // <--- УБЕДИСЬ, ЧТО ЭТОТ ИМПОРТ ПРАВИЛЬНЫЙ
 import com.example.slavgorodbus.data.model.BusSchedule
 import com.example.slavgorodbus.data.model.FavoriteTime
 import com.example.slavgorodbus.ui.components.ScheduleCard
 import com.example.slavgorodbus.ui.viewmodel.BusViewModel
 
+// УДАЛЕНЫ НЕКОРРЕКТНЫЕ СВОЙСТВА-РАСШИРЕНИЯ
+// private val Any.favorite_times_screen_title: Int
+// private val ERROR.string: Any
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoriteTimesScreen(
-    viewModel: BusViewModel
+    viewModel: BusViewModel,
+    modifier: Modifier.Companion
 ) {
     val favoriteTimes by viewModel.favoriteTimes.collectAsState()
 
@@ -30,8 +38,8 @@ fun FavoriteTimesScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Избранное время",
-                        style = MaterialTheme.typography.headlineSmall
+                        text = stringResource(id = R.string.favorite_times_screen_title), // Убедись, что R.string.favorite_times_screen_title существует
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -42,10 +50,10 @@ fun FavoriteTimesScreen(
         }
     ) { paddingValues ->
         if (favoriteTimes.isEmpty()) {
-            EmptyFavoritesState(modifier = Modifier.padding(paddingValues))
+            EmptyFavoritesState(modifier = modifier.padding(paddingValues))
         } else {
             FavoritesList(
-                modifier = Modifier.padding(paddingValues),
+                modifier = modifier.padding(paddingValues),
                 favoriteTimes = favoriteTimes,
                 viewModel = viewModel
             )
@@ -65,17 +73,17 @@ private fun EmptyFavoritesState(modifier: Modifier = Modifier) {
         ) {
             Icon(
                 imageVector = Icons.Default.Favorite,
-                contentDescription = "Нет избранного времени",
+                contentDescription = stringResource(id = R.string.no_favorite_times_icon_desc), // Убедись, что R.string.no_favorite_times_icon_desc существует
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "Нет избранного времени",
+                text = stringResource(id = R.string.no_favorite_times_title), // Убедись, что R.string.no_favorite_times_title существует
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "На данный момент функция не работает. В ближайшем обновлении исправлю!",
+                text = stringResource(id = R.string.favorites_not_working_message), // Убедись, что R.string.favorites_not_working_message существует
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -105,7 +113,7 @@ private fun FavoritesList(
                 stopName = favoriteTime.stopName,
                 departureTime = favoriteTime.departureTime,
                 arrivalTime = favoriteTime.arrivalTime,
-                dayOfWeek = 1
+                dayOfWeek = 1 // Убедитесь, что это значение корректно для вашей логики
             )
 
             ScheduleCard(

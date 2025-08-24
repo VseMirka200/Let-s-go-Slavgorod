@@ -2,11 +2,10 @@ package com.example.slavgorodbus.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
@@ -15,11 +14,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavOptionsBuilder // <-- Добавь этот импорт
 import androidx.navigation.compose.currentBackStackEntryAsState
 
 sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
     object Home : Screen("home", "Маршруты", Icons.Filled.Home)
-    object Search : Screen("search", "Поиск", Icons.Filled.Search)
     object FavoriteTimes : Screen("favorite-times", "Избранное", Icons.Filled.AccessTime)
     object Settings : Screen("settings", "Настройки", Icons.Filled.Settings)
     object About : Screen("about", "О программе", Icons.Filled.Info)
@@ -27,9 +27,15 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
 
 val bottomNavItems = listOf(
     Screen.Home,
-    Screen.Search,
     Screen.FavoriteTimes,
     Screen.Settings
+)
+
+val routesThatShowBottomBar = listOf(
+    Screen.Home.route,
+    Screen.FavoriteTimes.route,
+    Screen.Settings.route,
+    Screen.About.route
 )
 
 @Composable
@@ -37,12 +43,16 @@ fun BottomNavigation(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val showBottomBar = bottomNavItems.any { it.route == currentRoute }
+    val showBottomBar = routesThatShowBottomBar.contains(currentRoute)
 
     if (showBottomBar) {
         NavigationBar {
             bottomNavItems.forEach { navigationItem ->
-                val selected = currentRoute == navigationItem.route
+                val selected = when (currentRoute) {
+                    Screen.About.route -> navigationItem.route == Screen.Settings.route
+                    else -> currentRoute == navigationItem.route
+                }
+
                 NavigationBarItem(
                     icon = { Icon(navigationItem.icon, contentDescription = navigationItem.title) },
                     label = {
@@ -55,15 +65,34 @@ fun BottomNavigation(navController: NavController) {
                     },
                     selected = selected,
                     onClick = {
-                        if (!selected) {
-                            navController.navigate(navigationItem.route) {
-                                navController.graph.startDestinationRoute?.let { startRoute ->
-                                    popUpTo(startRoute) {
+                        val isCurrentlyOnAboutAndSettingsClicked = navigationItem.route == Screen.Settings.route && currentRoute == Screen.About.route
+
+                        if (isCurrentlyOnAboutAndSettingsClicked) {
+                            // Если мы на "О программе" и кликаем на уже подсвеченные "Настройки",
+                            // ничего не делаем, чтобы остаться на "О программе".
+                            // Пользователь должен использовать кнопку "назад" для возврата на Settings.
+                        } else if (currentRoute != navigationItem.route) {
+                            if (navigationItem.route == Screen.Settings.route) {
+                                // Особая логика для "Настроек", чтобы всегда открывать SettingsScreen
+                                navController.navigate(Screen.Settings.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        // Сохраняем состояние для других вкладок
                                         saveState = true
                                     }
+                                    launchSingleTop = true
+                                    // Для Settings не восстанавливаем состояние, чтобы он "забыл" об AboutScreen
+                                    // Это ключевой момент для сброса.
+                                    restoreState = false
                                 }
-                                launchSingleTop = true
-                                restoreState = true
+                            } else {
+                                // Стандартная навигация для других элементов
+                                navController.navigate(navigationItem.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
                             }
                         }
                     }

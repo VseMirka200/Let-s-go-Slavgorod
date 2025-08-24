@@ -27,7 +27,6 @@ import com.example.slavgorodbus.ui.screens.AboutScreen
 import com.example.slavgorodbus.ui.screens.FavoriteTimesScreen
 import com.example.slavgorodbus.ui.screens.HomeScreen
 import com.example.slavgorodbus.ui.screens.ScheduleScreen
-import com.example.slavgorodbus.ui.screens.SearchScreen
 import com.example.slavgorodbus.ui.screens.SettingsScreen
 import com.example.slavgorodbus.ui.theme.SlavgorodBusTheme
 import com.example.slavgorodbus.ui.viewmodel.AppTheme
@@ -98,22 +97,15 @@ fun AppNavHost(
                     navController.navigate("schedule/${route.id}")
                 },
                 viewModel = busViewModel,
-                navController = navController
-            )
-        }
-
-        composable(Screen.Search.route) {
-            SearchScreen(
-                onRouteClick = { route ->
-                    navController.navigate("schedule/${route.id}")
-                },
-                viewModel = busViewModel
+                navController = navController,
+                modifier = Modifier
             )
         }
 
         composable(Screen.FavoriteTimes.route) {
             FavoriteTimesScreen(
-                viewModel = busViewModel
+                viewModel = busViewModel,
+                modifier = Modifier
             )
         }
 
@@ -128,21 +120,23 @@ fun AppNavHost(
             ScheduleScreen(
                 route = route,
                 onBackClick = { navController.popBackStack() },
-                viewModel = busViewModel
+                viewModel = busViewModel,
+                modifier = Modifier
             )
         }
 
         composable(Screen.Settings.route) {
             SettingsScreen(
                 themeViewModel = themeViewModel,
-                onNavigateBack = { navController.popBackStack() },
-                onNavigateToAbout = { navController.navigate(Screen.About.route) }
+                onNavigateToAbout = { navController.navigate(Screen.About.route) },
+                modifier = Modifier
             )
         }
 
         composable(Screen.About.route) {
             AboutScreen(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                modifier = Modifier
             )
         }
     }
